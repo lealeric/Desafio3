@@ -17,20 +17,7 @@ namespace AgendaConsultorio
         private String[] DadosConsulta, DadosPaciente;
         public Agenda() 
         {
-            Pacientes.Add(new Paciente("Soraia", 64558436734, new DateTime(1960, 11, 17)));
-            Pacientes.Add(new Paciente("Francisco", 72793490725, new DateTime(1962, 11, 28)));
-            Consultas.Add(new Consulta(Pacientes[0], new DateTime(2022, 7, 3, 14, 0, 0), new DateTime(2022, 7, 3, 14, 30, 0)));
-            Consultas.Add(new Consulta(Pacientes[0], new DateTime(2022, 5, 3, 14, 0, 0), new DateTime(2022, 5, 3, 14, 30, 0)));
-            Consultas.Add(new Consulta(Pacientes[0], new DateTime(2022, 4, 3, 14, 0, 0), new DateTime(2022, 4, 3, 14, 30, 0)));
-            Consultas.Add(new Consulta(Pacientes[0], new DateTime(2022, 4, 3, 15, 0, 0), new DateTime(2022, 4, 3, 15, 30, 0)));
-            Consultas.Add(new Consulta(Pacientes[0], new DateTime(2022, 4, 3, 9, 0, 0), new DateTime(2022, 4, 3, 9, 45, 0)));
-            Consultas.Add(new Consulta(Pacientes[1], new DateTime(2021, 6, 3, 14, 0, 0), new DateTime(2022, 6, 3, 14, 30, 0)));
-            Pacientes[0].addConsulta(Consultas[0]);
-            Pacientes[0].addConsulta(Consultas[1]); 
-            Pacientes[0].addConsulta(Consultas[2]);
-            Pacientes[0].addConsulta(Consultas[3]);
-            Pacientes[0].addConsulta(Consultas[4]);
-            Pacientes[1].addConsulta(Consultas[5]);
+            
         }
 
         private String[] solicitaDadosPaciente(String[] entradasPaciente)
