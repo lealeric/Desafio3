@@ -7,16 +7,24 @@ using System.Globalization;
 
 namespace AgendaConsultorio
 {
+    /// <summary>
+    /// Define uma nova agenda com pacientes e consultas.
+    /// </summary>
     public class Agenda
-    {
-        //Classe gerenciadora dos pacientes e das consultas
-
-        private List<Paciente> Pacientes = new List<Paciente>();
-        private List<Consulta> Consultas = new List<Consulta>();
+    {   
+        private List<Paciente> Pacientes;
+        private List<Consulta> Consultas;
 
         private String[] DadosConsulta, DadosPaciente;
+
+        /// <summary>
+        /// Cria uma nova instância de agenda.
+        /// </summary>
         public Agenda() 
         {
+            Pacientes = new List<Paciente>();
+            Consultas = new List<Consulta>();
+
             Pacientes.Add(new Paciente("Soraia", 64558436734, new DateTime(1960, 11, 17)));
             Pacientes.Add(new Paciente("Francisco", 72793490725, new DateTime(1962, 11, 28)));
             Consultas.Add(new Consulta(Pacientes[0], new DateTime(2022, 7, 3, 14, 0, 0), new DateTime(2022, 7, 3, 14, 30, 0)));
@@ -31,6 +39,7 @@ namespace AgendaConsultorio
             Pacientes[0].addConsulta(Consultas[3]);
             Pacientes[0].addConsulta(Consultas[4]);
             Pacientes[1].addConsulta(Consultas[5]);
+            
         }
 
         private String[] solicitaDadosPaciente(String[] entradasPaciente)
@@ -70,7 +79,7 @@ namespace AgendaConsultorio
                 validacaoPaciente = new ValidacaoPaciente(retornaPaciente(dadosEntradaPaciente[1]), dadosEntradaPaciente[0],
                     dadosEntradaPaciente[1], dadosEntradaPaciente[2]);
                 dicErrosPaciente = validacaoPaciente.DicionarioErrosPaciente;
-
+                
                 foreach (KeyValuePair<String, String> item in dicErrosPaciente)
                 {
                     if (item.Key == "Nome")
@@ -94,6 +103,9 @@ namespace AgendaConsultorio
             return true;
         }
 
+        /// <summary>
+        /// Adiciona um paciente após validar os dados inseridos pelo usuário.
+        /// </summary>
         public void addPaciente()
         {
             if (dadosPacienteValidos())
@@ -108,6 +120,11 @@ namespace AgendaConsultorio
             }            
         }
 
+        /// <summary>
+        /// Consulta um paciente a partir de um CPF informado.
+        /// </summary>
+        /// <param name="cpfConsulta">Valor inserido pelo usuário para procurar um paciente.</param>
+        /// <returns>Objeto do tipo Paciente caso exista na agenda, caso contrário retorna null.</returns>
         public Paciente retornaPaciente(String cpfConsulta)
         {
             foreach (Paciente paciente in Pacientes)
@@ -129,7 +146,7 @@ namespace AgendaConsultorio
                 return false;
             }
 
-            if (paciente.temConsultaFutura())
+            if (paciente.retornaProximaConsulta() != null)
             {
                 Console.WriteLine("Não é possível remover pacientes com agendamentos futuros!\n");
                 return false;
@@ -157,6 +174,9 @@ namespace AgendaConsultorio
             return true;
         }
 
+        /// <summary>
+        /// Remove um paciente se não possuir agendamentos futuros.
+        /// </summary>
         public void removePaciente()
         {
             Console.WriteLine("Insira o cpf do paciente que deseja remover:");
@@ -170,15 +190,27 @@ namespace AgendaConsultorio
             }
         }
 
+        /// <summary>
+        /// Lista os pacientes cadastrados ordenados por nome ou CPF.
+        /// </summary>
+        /// <param name="parametro">Ordena os pacientes por 3 - CPF, 4 - Nome.</param>
         public void listaPacientes(int parametro)
         {
-            List<Paciente> pacientesOrdenados;
+            List<Paciente> pacientesOrdenados = new List<Paciente>();
 
             if (parametro == 3)
             {
                 pacientesOrdenados = Pacientes.OrderBy(paciente => paciente.Cpf).ToList();
             }
-            else pacientesOrdenados = Pacientes.OrderBy(paciente => paciente.Nome).ToList();
+            else if (parametro == 4)
+            {
+                pacientesOrdenados = Pacientes.OrderBy(paciente => paciente.Nome).ToList();
+            }
+            else
+            {
+                Console.WriteLine("Opção inválida!");
+                return;
+            }
 
             Console.WriteLine(String.Concat(Enumerable.Repeat("-", 60)) + "\n" +
                                 String.Format("{0:11} {1:32} {2} {3:-5}\n","CPF".PadRight(11), "Nome".PadRight(33), "Dt.Nasc.", "Idade".PadLeft(1)) +
@@ -262,6 +294,9 @@ namespace AgendaConsultorio
             return true;
         }
 
+        /// <summary>
+        /// Adiciona um agendamento de consulta após validar os dados inseridos pelo usuário.
+        /// </summary>
         public void addConsulta()
         {
             if (validaDadosConsulta())
@@ -281,6 +316,11 @@ namespace AgendaConsultorio
             }
         }
 
+        /// <summary>
+        /// Retorna um agendamento consultando uma data/hora inicial.
+        /// </summary>
+        /// <param name="dtHrInicio">Data e hora inicial da consulta.</param>
+        /// <returns>Um objeto Consulta caso exista na agenda, caso contrário retorna null.</returns>
         public Consulta retornaConsulta(DateTime dtHrInicio)
         {
             foreach (Consulta consulta in Consultas)
@@ -293,6 +333,10 @@ namespace AgendaConsultorio
             return null;
         }
 
+        /// <summary>
+        /// Lista os agendamentos em toda a lista ou por um período definido.
+        /// </summary>
+        /// <param name="c">T - exibe todos os agendamentos; P - usuário define um período para exibir.</param>
         public void listaAgenda(Char c)
         {
             List<Consulta> consultasEmOrdem;
@@ -300,20 +344,25 @@ namespace AgendaConsultorio
             if (c == 'P')
             {   
                 DateTime dtInicial, dtFinal;
-                while (true)
+                bool validaDataInicial = false, validaDataFinal = false;
+
+                do
                 {
-                    bool validaDataInicial, validaDataFinal;
-                    
                     Console.Write("Data inicial: ");
                     validaDataInicial = DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", new CultureInfo("pt-BR"), DateTimeStyles.None, out dtInicial);
                     Console.Write("Data final: ");
                     validaDataFinal = DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", new CultureInfo("pt-BR"), DateTimeStyles.None, out dtFinal);
 
-                    if(validaDataInicial && validaDataFinal)
+                    if (!validaDataInicial)
                     {
-                        break;
+                        Console.WriteLine("Data/hora inicial inválida!\n");
                     }
-                }
+                    else if (!validaDataFinal)
+                    {
+                        Console.WriteLine("Data/hora final inválida!\n");
+                    }
+                } while (!validaDataInicial || !validaDataFinal);
+
                 consultasEmOrdem = Consultas.Where(consulta => consulta.DtHrInicio >= dtInicial && consulta.DtHrFim <= dtFinal).OrderBy(consulta => consulta.DtHrInicio).ToList();
 
             }
@@ -377,6 +426,9 @@ namespace AgendaConsultorio
             return consulta;
         }
 
+        /// <summary>
+        /// Cancela uma consulta após validar essa possibilidade.
+        /// </summary>
         public void cancelaConsulta()
         {
             Paciente paciente;

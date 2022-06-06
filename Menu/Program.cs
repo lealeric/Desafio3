@@ -5,6 +5,7 @@ public class Program
 {
     public static void Main(String[] args)
     {
-        Menu menu = new Menu();        
+        Menu menu = new();
+
     }
 }

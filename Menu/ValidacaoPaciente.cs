@@ -7,16 +7,24 @@ using System.Globalization;
 
 namespace AgendaConsultorio
 {
+    /// <summary>
+    /// Valida os dados de entrada do paciente.
+    /// </summary>
 
     public class ValidacaoPaciente
     {
-        //Classe utilizada para fazer a validação dos dados de cadastro dos pacientes
-
         public Dictionary<String, String> DicionarioErrosPaciente
         {
             get;
         }
 
+        /// <summary>
+        /// Cria uma instância de validação dos dados do paciente.
+        /// </summary>
+        /// <param name="paciente"></param>
+        /// <param name="nome"></param>
+        /// <param name="cpf"></param>
+        /// <param name="dtNascimento"></param>
         public ValidacaoPaciente (Paciente paciente, String nome, String cpf, String dtNascimento)
         {
             DicionarioErrosPaciente = new Dictionary<string, string>();
@@ -25,16 +33,14 @@ namespace AgendaConsultorio
             validaCpf(cpf, paciente);
             validaNascimento(dtNascimento);
         }
-
-        public void validaNome(String nome)
+        private void validaNome(String nome)
         {
             if (nome.Length < 5)
             {
                 DicionarioErrosPaciente.Add("Nome", "Nome muito curto.\n");
             }
         }
-
-        public void validaCpf(String cpf, Paciente paciente)
+        private void validaCpf(String cpf, Paciente paciente)
         {
             if (cpf.Length != 11 || testeCpfIgual(cpf) || !testeDigito1Cpf(cpf) || !testeDigito2Cpf(cpf))
             {
@@ -45,7 +51,6 @@ namespace AgendaConsultorio
                 DicionarioErrosPaciente.Add("CPF", "Paciente já cadastrado.\n");
             }
         }
-
         private bool testeCpfIgual(String s)
         {
             for (int i = 1; i < s.Length; i++)
@@ -54,7 +59,6 @@ namespace AgendaConsultorio
 
             return true;
         }
-
         private bool testeDigito1Cpf(String s)
         {
             bool saida = false;
@@ -78,7 +82,6 @@ namespace AgendaConsultorio
 
             return saida;
         }
-
         private bool testeDigito2Cpf(String s)
         {
             bool saida = false;
@@ -102,8 +105,7 @@ namespace AgendaConsultorio
 
             return saida;
         }
-
-        public void validaNascimento(String dataNascimento)
+        private void validaNascimento(String dataNascimento)
         {
             DateTime data;
 

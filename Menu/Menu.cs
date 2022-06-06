@@ -6,17 +6,23 @@ using System.Threading.Tasks;
 
 namespace AgendaConsultorio
 {
+    /// <summary>
+    /// Apresenta as interfaces de menu para o usuário. 
+    /// </summary>
     public class Menu
     {
         public Agenda Agenda;
+
+        /// <summary>
+        /// Cria uma instância do menu que acessa a Agenda.
+        /// </summary>
         public Menu()
         {
-            Agenda = new Agenda();
+            Agenda = new();
             menuPrincipal();
         }
-        public void menuPrincipal()
+        private void menuPrincipal()
         {
-            // Apresentação do menu inicial da aplicação.
             int escolha = 0;
 
             while (escolha != 3)
@@ -47,7 +53,6 @@ namespace AgendaConsultorio
         }
         private void menuCadastro()
         {
-            // Apresentação do menu de gerenciamento de pacientes.
             int escolha = 0;
 
             while (escolha != 5)

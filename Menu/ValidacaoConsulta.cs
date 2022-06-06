@@ -7,6 +7,9 @@ using System.Globalization;
 
 namespace AgendaConsultorio
 {
+    /// <summary>
+    /// Valida os dados do agendamento de consulta.
+    /// </summary>
     public class ValidacaoConsulta
     {
         private DateTime Aberto;
@@ -17,6 +20,14 @@ namespace AgendaConsultorio
             get;
         }
 
+        /// <summary>
+        /// Cria uma instância de validação da consulta.
+        /// </summary>
+        /// <param name="paciente"></param>
+        /// <param name="consultas"></param>
+        /// <param name="data"></param>
+        /// <param name="hrInicial"></param>
+        /// <param name="hrFinal"></param>
         public ValidacaoConsulta(Paciente paciente, List<Consulta> consultas, String data, String hrInicial, String hrFinal)
         {
             DicionarioErrosConsulta = new Dictionary<string, string>();
@@ -46,11 +57,16 @@ namespace AgendaConsultorio
             }            
         }
 
-        public ValidacaoConsulta(String data, String hrInicial)
+        /// <summary>
+        /// Cria uma instância de validaçãoapenas para a data/hora inicial da consulta.
+        /// </summary>
+        /// <param name="dataInicial"></param>
+        /// <param name="horaInicial"></param>
+        public ValidacaoConsulta(String dataInicial, String horaInicial)
         {
             DicionarioErrosConsulta = new Dictionary<string, string>();
             DateTime dtHrInicial;
-            bool dataHoraInicialValida = DateTime.TryParseExact(data + " " + hrInicial, "dd/MM/yyyy HHmm", new CultureInfo("pt-BR"), DateTimeStyles.None, out dtHrInicial);
+            bool dataHoraInicialValida = DateTime.TryParseExact(dataInicial + " " + horaInicial, "dd/MM/yyyy HHmm", new CultureInfo("pt-BR"), DateTimeStyles.None, out dtHrInicial);
 
             if (!dataHoraInicialValida)
             {
@@ -58,8 +74,8 @@ namespace AgendaConsultorio
             }
             else
             {
-                Aberto = DateTime.ParseExact(data + " 0800", "dd/MM/yyyy HHmm", new CultureInfo("pt-BR"), DateTimeStyles.None);
-                Fechado = DateTime.ParseExact(data + " 1900", "dd/MM/yyyy HHmm", new CultureInfo("pt-BR"), DateTimeStyles.None);
+                Aberto = DateTime.ParseExact(dataInicial + " 0800", "dd/MM/yyyy HHmm", new CultureInfo("pt-BR"), DateTimeStyles.None);
+                Fechado = DateTime.ParseExact(dataInicial + " 1900", "dd/MM/yyyy HHmm", new CultureInfo("pt-BR"), DateTimeStyles.None);
 
                 validaDataHoraInicial(dtHrInicial);
             }
@@ -73,7 +89,7 @@ namespace AgendaConsultorio
 
                 return;
             }
-            else if (paciente.temConsultaFutura())
+            else if (paciente.retornaProximaConsulta() != null)
             {
                 DicionarioErrosConsulta.Add("Paciente", "Paciente já possui consulta agendada!\n");
 
