@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AgendaConsultorio</name>
+    </assembly>
+    <members>
+        <member name="T:AgendaConsultorio.Agenda">
+            <summary>
+            Define uma nova agenda com pacientes e consultas.
+            </summary>
+        </member>
+        <member name="M:AgendaConsultorio.Agenda.#ctor">
+            <summary>
+            Cria uma nova instância de agenda.
+            </summary>
+        </member>
+        <member name="M:AgendaConsultorio.Agenda.addPaciente">
+            <summary>
+            Adiciona um paciente após validar os dados inseridos pelo usuário.
+            </summary>
+        </member>
+        <member name="M:AgendaConsultorio.Agenda.retornaPaciente(System.String)">
+            <summary>
+            Consulta um paciente a partir de um CPF informado.
+            </summary>
+            <param name="cpfConsulta">Valor inserido pelo usuário para procurar um paciente.</param>
+            <returns>Objeto do tipo Paciente caso exista na agenda, caso contrário retorna null.</returns>
+        </member>
+        <member name="M:AgendaConsultorio.Agenda.removePaciente">
+            <summary>
+            Remove um paciente se não possuir agendamentos futuros.
+            </summary>
+        </member>
+        <member name="M:AgendaConsultorio.Agenda.listaPacientes(System.Int32)">
+            <summary>
+            Lista os pacientes cadastrados ordenados por nome ou CPF.
+            </summary>
+            <param name="parametro">Ordena os pacientes por 3 - CPF, 4 - Nome.</param>
+        </member>
+        <member name="M:AgendaConsultorio.Agenda.addConsulta">
+            <summary>
+            Adiciona um agendamento de consulta após validar os dados inseridos pelo usuário.
+            </summary>
+        </member>
+        <member name="M:AgendaConsultorio.Agenda.retornaConsulta(System.DateTime)">
+            <summary>
+            Retorna um agendamento consultando uma data/hora inicial.
+            </summary>
+            <param name="dtHrInicio">Data e hora inicial da consulta.</param>
+            <returns>Um objeto Consulta caso exista na agenda, caso contrário retorna null.</returns>
+        </member>
+        <member name="M:AgendaConsultorio.Agenda.listaAgenda(System.Char)">
+            <summary>
+            Lista os agendamentos em toda a lista ou por um período definido.
+            </summary>
+            <param name="c">T - exibe todos os agendamentos; P - usuário define um período para exibir.</param>
+        </member>
+        <member name="M:AgendaConsultorio.Agenda.cancelaConsulta">
+            <summary>
+            Cancela uma consulta após validar essa possibilidade.
+            </summary>
+        </member>
+        <member name="T:AgendaConsultorio.Consulta">
+            <summary>
+            Gerencia agendamentos para um paciente.
+            </summary>
+        </member>
+        <member name="M:AgendaConsultorio.Consulta.#ctor(AgendaConsultorio.Paciente,System.DateTime,System.DateTime)">
+            <summary>
+            Cria uma nova instância de Consulta.
+            </summary>
+            <param name="paciente">Representa a propriedade <see cref="P:AgendaConsultorio.Consulta.Paciente"/> e deve existir previamente na agenda.</param>
+            <param name="dtHrInicio">Representa a propriedade <see cref="P:AgendaConsultorio.Consulta.DtHrInicio"/>, deve ser uma data/hora válida e deve atender ao estipulado pelo consultório.</param>
+            <param name="dtHrFim">Representa a propriedade <see cref="P:AgendaConsultorio.Consulta.DtHrFim"/>, deve ser uma data/hora válida e deve atender ao estipulado pelo consultório.</param>
+        </member>
+        <member name="M:AgendaConsultorio.Consulta.CompareTo(AgendaConsultorio.Consulta)">
+            <summary>
+            Compara uma consulta com outra baseado na data/hora inicial.
+            </summary>
+            <param name="other">Segunda consulta para fazer a comparação.</param>
+            <returns><para>Um valor entre -1 e 1 indicando a relação de data/hora inicial entre as consultas.</para>
+            <para></para>
+            <para>-1 se <paramref name="other"/> for após a instância</para>
+            <para></para>
+            <para>0 se forem na mesma data/hora</para>
+            <para></para>
+            1 se <paramref name="other"/> for antes da instância</returns>
+        </member>
+        <member name="T:AgendaConsultorio.Menu">
+            <summary>
+            Apresenta as interfaces de menu para o usuário. 
+            </summary>
+        </member>
+        <member name="M:AgendaConsultorio.Menu.#ctor">
+            <summary>
+            Cria uma instância do menu que acessa a Agenda.
+            </summary>
+        </member>
+        <member name="T:AgendaConsultorio.Paciente">
+            <summary>
+            Define um novo paciente e gerencia pacientes existentes.
+            </summary>
+        </member>
+        <member name="M:AgendaConsultorio.Paciente.#ctor(System.String,System.Int64,System.DateTime)">
+            <summary>
+            Cria uma nova instância de paciente com nome, CPF e data de nascimento.
+            </summary>
+            <param name="novoNome">Representa a propriedade <see cref="P:AgendaConsultorio.Paciente.Nome"/> e deve ter mais que 5 caracteres</param>
+            <param name="novoCpf">Representa a propriedade <see cref="P:AgendaConsultorio.Paciente.Cpf" /> e deve atender às regras de definição do CPF</param>
+            <param name="novaDtNascimento">Representa a propriedade <see cref="P:AgendaConsultorio.Paciente.DtNascimento"/> e deve ser uma data válida para uma pessoa com 13 anos ou mais.</param>
+        </member>
+        <member name="M:AgendaConsultorio.Paciente.addConsulta(AgendaConsultorio.Consulta)">
+            <summary>
+            Adiciona um novo agendamento de consulta ao paciente.
+            </summary>
+            <param name="consulta">Representa um elemento da propriedade <see cref="P:AgendaConsultorio.Paciente.Consultas"/>.</param>
+        </member>
+        <member name="M:AgendaConsultorio.Paciente.removeTodasConsultas">
+            <summary>
+            Remove todos os agendamentos passados do paciente.
+            </summary>
+        </member>
+        <member name="M:AgendaConsultorio.Paciente.removeConsulta(AgendaConsultorio.Consulta)">
+            <summary>
+            Remove uma consulta do paciente, quando o agendamento for cancelado.
+            </summary>
+            <param name="consulta">Consulta cancelada a remover da lista do paciente.</param>
+        </member>
+        <member name="M:AgendaConsultorio.Paciente.retornaProximaConsulta">
+            <summary>
+            Verifica a existência de um agendamento futuro para o paciente.
+            </summary>
+            <returns>Verdadeiro se existe uma consulta após a data/hora atual, caso contrário retorna falso.</returns>
+        </member>
+        <member name="M:AgendaConsultorio.Paciente.retornaConsulta(System.DateTime,System.DateTime)">
+            <summary>
+            Pesquisa um agendamento baseado em data/hora específica.
+            </summary>
+            <param name="dtHrInicio">Data/hora inicial da consulta.</param>
+            <param name="dtHrFim">Data/hora final da consulta.</param>
+            <returns>Consulta no intervalo de tempo informado, caso contrário retorna null.</returns>
+        </member>
+        <member name="T:AgendaConsultorio.ValidacaoConsulta">
+            <summary>
+            Valida os dados do agendamento de consulta.
+            </summary>
+        </member>
+        <member name="M:AgendaConsultorio.ValidacaoConsulta.#ctor(AgendaConsultorio.Paciente,System.Collections.Generic.List{AgendaConsultorio.Consulta},System.String,System.String,System.String)">
+            <summary>
+            Cria uma instância de validação da consulta.
+            </summary>
+            <param name="paciente"></param>
+            <param name="consultas"></param>
+            <param name="data"></param>
+            <param name="hrInicial"></param>
+            <param name="hrFinal"></param>
+        </member>
+        <member name="M:AgendaConsultorio.ValidacaoConsulta.#ctor(System.String,System.String)">
+            <summary>
+            Cria uma instância de validaçãoapenas para a data/hora inicial da consulta.
+            </summary>
+            <param name="dataInicial"></param>
+            <param name="horaInicial"></param>
+        </member>
+        <member name="T:AgendaConsultorio.ValidacaoPaciente">
+            <summary>
+            Valida os dados de entrada do paciente.
+            </summary>
+        </member>
+        <member name="M:AgendaConsultorio.ValidacaoPaciente.#ctor(AgendaConsultorio.Paciente,System.String,System.String,System.String)">
+            <summary>
+            Cria uma instância de validação dos dados do paciente.
+            </summary>
+            <param name="paciente"></param>
+            <param name="nome"></param>
+            <param name="cpf"></param>
+            <param name="dtNascimento"></param>
+        </member>
+    </members>
+</doc>
