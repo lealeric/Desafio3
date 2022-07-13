@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AgendaConsultorio.Model;
 
-namespace AgendaConsultorio
+namespace AgendaConsultorio.Interface
 {
     /// <summary>
     /// Apresenta as interfaces de menu para o usuário. 
@@ -113,7 +109,7 @@ namespace AgendaConsultorio
                         break;
                     case 3:
                         Console.Write("Apresentar a agenda T-Toda ou P-Período: ");
-                        Agenda.listaAgenda(Convert.ToChar(Console.ReadLine().ToUpper()));
+                        Interface.imprimeListaAgenda(Agenda.ConsultaDAO, Agenda.PacienteDAO, Convert.ToChar(Console.ReadLine().ToUpper()));
                         break;
                     case 4:
                         break;

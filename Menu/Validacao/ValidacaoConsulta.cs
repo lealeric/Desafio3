@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Globalization;
+﻿using System.Globalization;
+using AgendaConsultorio.Model;
 
-namespace AgendaConsultorio
+namespace AgendaConsultorio.Validacao
 {
     /// <summary>
-    /// Valida os dados do agendamento de consulta.
+    /// Valida os dados do referentes às consultas.
     /// </summary>
     public class ValidacaoConsulta
     {
         private DateTime Aberto;
         private DateTime Fechado;
 
-        public Dictionary<String, String> DicionarioErrosConsulta
+        public Dictionary<string, string> DicionarioErrosConsulta
         {
             get;
         }
@@ -23,17 +19,17 @@ namespace AgendaConsultorio
         /// <summary>
         /// Cria uma instância de validação da consulta.
         /// </summary>
-        /// <param name="paciente"></param>
-        /// <param name="consultas"></param>
+        /// <param name="agenda">Objeto gerenciador dos contextos de agendamentos e pacientes.</param>
+        /// <param name="cpf"></param>
         /// <param name="data"></param>
         /// <param name="hrInicial"></param>
         /// <param name="hrFinal"></param>
-        public ValidacaoConsulta(Paciente paciente, List<Consulta> consultas, String data, String hrInicial, String hrFinal)
+        public ValidacaoConsulta(Agenda agenda, string cpf, string data, string hrInicial, string hrFinal)
         {
             DicionarioErrosConsulta = new Dictionary<string, string>();
 
-            validaPaciente(paciente);
-            
+            validaPaciente(agenda, Convert.ToInt64(cpf));
+
             DateTime dtHrInicial, dtHrFinal;
             bool dataHoraInicialValida = DateTime.TryParseExact(data + " " + hrInicial, "dd/MM/yyyy HHmm", new CultureInfo("pt-BR"), DateTimeStyles.None, out dtHrInicial);
             bool dataHoraFinalValida = DateTime.TryParseExact(data + " " + hrFinal, "dd/MM/yyyy HHmm", new CultureInfo("pt-BR"), DateTimeStyles.None, out dtHrFinal);
@@ -52,9 +48,55 @@ namespace AgendaConsultorio
                 Fechado = DateTime.ParseExact(data + " 1900", "dd/MM/yyyy HHmm", new CultureInfo("pt-BR"), DateTimeStyles.None);
                 validaDataHoraInicial(dtHrInicial);
                 validaDataHoraFinal(dtHrFinal);
-                validaIntervalos(dtHrInicial, dtHrFinal, consultas);
-                
-            }            
+                validaIntervalos(dtHrInicial, dtHrFinal, agenda.ConsultaDAO.Consultas()); ;
+            }
+        }
+
+        /// <summary>
+        /// Realiza a validação dos dados referentes a um agendamento, digitados pelo usuário.
+        /// </summary>
+        /// <param name="agenda">Objeto gerenciador dos contextos de agendamentos e pacientes.</param>
+        /// <returns>Um array com os dados validados.</returns>
+        public static String[] validaDadosConsulta(Agenda agenda)
+        {
+            ValidacaoConsulta validacaoConsulta;
+            Dictionary<string, string> dicErrosConsulta;
+            string[] dadosConsulta = new string[4];
+
+            do
+            {
+                dadosConsulta = Interface.Interface.solicitaDadosConsulta(dadosConsulta);
+                validacaoConsulta = new ValidacaoConsulta(agenda, dadosConsulta[0], dadosConsulta[1], dadosConsulta[2], dadosConsulta[3]);
+                dicErrosConsulta = validacaoConsulta.DicionarioErrosConsulta;
+
+                foreach (KeyValuePair<string, string> item in dicErrosConsulta)
+                {
+                    if (item.Key == "Paciente")
+                    {
+                        dadosConsulta[0] = "";
+                    }
+                    else if (item.Key == "Data/Hora Inicial" || item.Key == "Horário Inicial")
+                    {
+                        dadosConsulta[1] = dadosConsulta[2] = "";
+                    }
+                    else if (item.Key == "Data/Hora Final" || item.Key == "Horário Final")
+                    {
+                        dadosConsulta[1] = dadosConsulta[3] = "";
+                    }
+                    else if (item.Key == "Inicial >= Final")
+                    {
+                        dadosConsulta[2] = dadosConsulta[3] = "";
+                    }
+                    else if (item.Key == "Sobreposição")
+                    {
+                        dadosConsulta[1] = dadosConsulta[2] = dadosConsulta[3] = "";
+                    }
+                    Console.WriteLine("Erro: " + item.Value + "\n");
+                }
+
+            } while (dicErrosConsulta.Count > 0);
+            
+            return dadosConsulta;
         }
 
         /// <summary>
@@ -62,7 +104,7 @@ namespace AgendaConsultorio
         /// </summary>
         /// <param name="dataInicial"></param>
         /// <param name="horaInicial"></param>
-        public ValidacaoConsulta(String dataInicial, String horaInicial)
+        public ValidacaoConsulta(string dataInicial, string horaInicial)
         {
             DicionarioErrosConsulta = new Dictionary<string, string>();
             DateTime dtHrInicial;
@@ -81,15 +123,16 @@ namespace AgendaConsultorio
             }
         }
 
-        private void validaPaciente(Paciente paciente)
+        private void validaPaciente(Agenda agenda, long cpf)
         {
-            if (paciente == null)
+            Paciente paciente = agenda.PacienteDAO.recuperaPaciente(cpf);
+            if ( paciente == null)
             {
                 DicionarioErrosConsulta.Add("Paciente", "Paciente não cadastrado!\n");
 
                 return;
             }
-            else if (paciente.retornaProximaConsulta() != null)
+            else if (agenda.PacienteDAO.retornaProximaConsulta(paciente.Id) != null)
             {
                 DicionarioErrosConsulta.Add("Paciente", "Paciente já possui consulta agendada!\n");
 
@@ -143,7 +186,7 @@ namespace AgendaConsultorio
             }
         }
 
-        private void validaIntervalos(DateTime dtHrInicio, DateTime dtHrFim, List<Consulta> consultas)
+        private void validaIntervalos(DateTime dtHrInicio, DateTime dtHrFim, IList<Consulta> consultas)
         {
             if (dtHrInicio >= dtHrFim)
             {
@@ -151,7 +194,7 @@ namespace AgendaConsultorio
 
                 return;
             }
-            if(temIntersecao(dtHrInicio, dtHrFim, consultas))
+            if (temIntersecao(dtHrInicio, dtHrFim, consultas))
             {
                 DicionarioErrosConsulta.Add("Sobreposição", "Existe conflito de horário com outro agendamento!\n");
 
@@ -159,22 +202,47 @@ namespace AgendaConsultorio
             }
         }
 
-        private bool temIntersecao(DateTime dtHrInicio, DateTime dtHrFim, List<Consulta> consultas)
+        private bool temIntersecao(DateTime dtHrInicio, DateTime dtHrFim, IList<Consulta> consultas)
         {
+            dtHrInicio = dtHrInicio;
+            dtHrFim = dtHrFim;
+
             foreach (Consulta consulta in consultas)
             {
-                if ((dtHrInicio > consulta.DtHrInicio && dtHrInicio <= consulta.DtHrInicio) ||
-                    (dtHrFim > consulta.DtHrInicio && dtHrFim <= consulta.DtHrFim) ||
-                    dtHrFim == consulta.DtHrInicio || dtHrInicio == consulta.DtHrFim)
+                if (dtHrInicio >= consulta.DtHrInicio && dtHrInicio <= consulta.DtHrFim ||
+                    dtHrFim >= consulta.DtHrInicio && dtHrFim <= consulta.DtHrFim)
                 {
                     return true;
                 }
-            }            
+            }
 
             return false;
         }
 
+        /// <summary>
+        /// Recupera a data para consultar, na tabela de agendamentos, qual será cancelado.
+        /// </summary>
+        /// <returns>Uma data em formato padronizado.</returns>
+        public static DateTime retornaDataConsultaCancelada()
+        {
+            Consulta consulta;
+            string[] dadosConsulta;
+            ValidacaoConsulta validacaoConsulta;
+            DateTime dtHrConsulta;
 
+            do
+            {
+                dadosConsulta = Interface.Interface.solicitaDadosConsultaCancelada();
+                validacaoConsulta = new ValidacaoConsulta(dadosConsulta[0], dadosConsulta[1]);
 
+                foreach (KeyValuePair<string, string> item in validacaoConsulta.DicionarioErrosConsulta)
+                {
+                    Console.WriteLine(item.Value + "\n");
+                }
+                
+            } while (validacaoConsulta.DicionarioErrosConsulta.Count != 0);
+
+            return DateTime.ParseExact(dadosConsulta[0] + " " + dadosConsulta[1], "dd/MM/yyyy HHmm", new CultureInfo("pt-BR"), DateTimeStyles.None);
+        }
     }
 }

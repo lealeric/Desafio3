@@ -1,5 +1,5 @@
 ﻿using System;
-using AgendaConsultorio;
+using AgendaConsultorio.Interface;
 
 public class Program
 {
