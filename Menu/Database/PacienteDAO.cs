@@ -6,17 +6,29 @@ namespace AgendaConsultorio.Database
     {
         private AgendaContext contexto;
 
+        /// <summary>
+        /// Cria um contexto no banco de dados para os pacientes.
+        /// </summary>
         public PacienteDAO()
         {
             this.contexto = new AgendaContext();
         }
 
+        /// <summary>
+        /// Adiciona um novo paciente no contexto.
+        /// </summary>
+        /// <param name="paciente">Objeto paciente a ser adicionado.</param>
         public void AddPaciente(Paciente paciente)
         {
             contexto.Pacientes.Add(paciente);
             contexto.SaveChanges();
-        }                
+        }
 
+        /// <summary>
+        /// Lista todos os pacientes do contexto baseado em um parâmetro.
+        /// </summary>
+        /// <param name="paramentro">"CPF" - ordena os pacientes por CPF, "Nome" - ordena os pacientes por nome.</param>
+        /// <returns>Uma lista com os pacientes ordenados.</returns>
         public IList<Paciente> Pacientes(string paramentro)
         {
             var query = from paciente in contexto.Pacientes
@@ -24,7 +36,7 @@ namespace AgendaConsultorio.Database
 
             if (paramentro == "CPF")
             {
-                
+
                 query = query.OrderBy(p => p.Cpf);
             }
             else if (paramentro == "Nome")
@@ -34,6 +46,11 @@ namespace AgendaConsultorio.Database
             return query.ToList();
         }
 
+        /// <summary>
+        /// Recupera um paciente baseado no seu Id.
+        /// </summary>
+        /// <param name="id">Número identificador único do paciente no banco de dados.</param>
+        /// <returns>Um paciente específico.</returns>
         public Paciente recuperaPaciente(int id)
         {
             var query = from paciente in contexto.Pacientes
@@ -44,6 +61,11 @@ namespace AgendaConsultorio.Database
             else return null;
         }
 
+        /// <summary>
+        /// Recupera um paciente baseado no seu CPF.
+        /// </summary>
+        /// <param name="cpf">Número de CPF do paciente.</param>
+        /// <returns>Um paciente específico.</returns>
         public Paciente recuperaPaciente (long cpf)
         {
             var query = from paciente in contexto.Pacientes
@@ -55,9 +77,10 @@ namespace AgendaConsultorio.Database
         }
 
         /// <summary>
-        /// Verifica a existência de um agendamento futuro para o paciente.
+        /// Consulta o agendamento futuro de um paciente.
         /// </summary>
-        /// <returns>Verdadeiro se existe uma consulta após a data/hora atual, caso contrário retorna falso.</returns>
+        /// <param name="idPaciente">Número identificador de um paciente no banco de dados.</param>
+        /// <returns>Um agendamento futuro ou nulo caso não exista.</returns>
         public Consulta retornaProximaConsulta(int idPaciente)
         {
             var proximaConsulta = from consulta in contexto.Consultas
@@ -68,26 +91,15 @@ namespace AgendaConsultorio.Database
             else return null;
         }
 
-        /// <summary>
-        /// Lista todas as consultas de um paciente ordenadas a partir da mais antiga.
-        /// </summary>
-        /// <returns>Uma lista com as consultas do paciente ou null.</returns>
-        public IList<Consulta> Consultas(int idPaciente)
-        {
-            var query = from consulta in contexto.Consultas
-                        where consulta.PacienteId == idPaciente
-                        orderby consulta.DtHrInicio
-                        select consulta;
-
-            if (query.Any()) return query.ToList();
-            else return null;
-        }
-
         public void Dispose()
         {
             contexto.Dispose();
         }
         
+        /// <summary>
+        /// Remove um paciente do banco de dados.
+        /// </summary>
+        /// <param name="paciente">Paciente a ser removido.</param>
         public void RemovePaciente(Paciente paciente)
         {
             contexto.Remove(paciente);

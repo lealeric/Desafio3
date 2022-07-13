@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using AgendaConsultorio.Database;
 using AgendaConsultorio.Model;
 
 namespace AgendaConsultorio.Validacao
@@ -29,7 +30,13 @@ namespace AgendaConsultorio.Validacao
             validaCpf(cpf, paciente);
             validaNascimento(dtNascimento);
         }
-        public static String[] dadosPacienteValidos(Agenda agenda)
+
+        /// <summary>
+        /// Valida os dados sobre o paciente inseridos pelo usuário.
+        /// </summary>
+        /// <param name="pacienteDAO">Contexto dos pacientes no banco de dados.</param>
+        /// <returns>Um array com os dados validados.</returns>
+        public static String[] dadosPacienteValidos(PacienteDAO pacienteDAO)
         {
             ValidacaoPaciente validacaoPaciente;
             Dictionary<string, string> dicErrosPaciente;
@@ -38,8 +45,9 @@ namespace AgendaConsultorio.Validacao
             do
             {
                 dadosEntradaPaciente = Interface.Interface.solicitaDadosPaciente(dadosEntradaPaciente);
-                validacaoPaciente = new ValidacaoPaciente(agenda.retornaPaciente(dadosEntradaPaciente[1]), dadosEntradaPaciente[0],
-                    dadosEntradaPaciente[1], dadosEntradaPaciente[2]);
+                validacaoPaciente = 
+                    new ValidacaoPaciente(pacienteDAO.recuperaPaciente(Convert.ToInt64(dadosEntradaPaciente[1])),
+                    dadosEntradaPaciente[0], dadosEntradaPaciente[1], dadosEntradaPaciente[2]);
                 dicErrosPaciente = validacaoPaciente.DicionarioErrosPaciente;
 
                 foreach (KeyValuePair<string, string> item in dicErrosPaciente)
@@ -155,7 +163,14 @@ namespace AgendaConsultorio.Validacao
                 }
             }
         }
-        public static bool validaRemocaoPaciente(Paciente paciente, IList<Consulta> consultas)
+
+        /// <summary>
+        /// Confere se um paciente pode ser removido.
+        /// </summary>
+        /// <param name="pacienteDAO">Contexto dos pacientes no banco de dados.</param>
+        /// <param name="paciente">Paciente a ser removido.</param>
+        /// <returns>Verdadeiro se for possível a remoção e falso, caso contrário.</returns>
+        public static bool validaRemocaoPaciente(PacienteDAO pacienteDAO, Paciente paciente)
         {
             if (paciente == null)
             {
@@ -163,30 +178,13 @@ namespace AgendaConsultorio.Validacao
                 return false;
             }
 
-            /*if (paciente.retornaProximaConsulta() != null)
+            Consulta proxConsulta = pacienteDAO.retornaProximaConsulta(paciente.Id);
+
+            if (proxConsulta != null)
             {
                 Console.WriteLine("Não é possível remover pacientes com agendamentos futuros!\n");
                 return false;
-            }*/
-
-            /*if (paciente.Consultas != null)
-            {
-                Consulta consultaPaciente, consultaAgenda;
-                for (int i = 0; i < paciente.Consultas.Count; i++)
-                {
-                    consultaPaciente = paciente.Consultas[i];
-
-                    for (int j = 0; j < consultas.Count; j++)
-                    {
-                        consultaAgenda = consultas[j];
-                        if (consultaPaciente.Equals(consultaAgenda))
-                        {
-                            consultas.Remove(consultaAgenda);
-                        }
-                    }
-                }
-                paciente.removeTodasConsultas();
-            }*/
+            }
 
             return true;
         }

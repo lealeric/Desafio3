@@ -40,6 +40,11 @@ namespace AgendaConsultorio.Interface
             return entradasPaciente;
         }
 
+        /// <summary>
+        /// Solicita o CPF de um paciente.
+        /// </summary>
+        /// <param name="pacienteDao">Contexto dos pacientes no banco de dados.</param>
+        /// <returns>Um paciente caso exista no banco e nulo caso contrário.</returns>
         public static Paciente solicitaPacientePorCpf(PacienteDAO pacienteDao)
         {
             Console.WriteLine("Insira o CPF do paciente:");
@@ -78,6 +83,10 @@ namespace AgendaConsultorio.Interface
             return entradasConsulta;
         }
 
+        /// <summary>
+        /// Solicita os dados da consulta a ser cancelada.
+        /// </summary>
+        /// <returns>Um array com os dados inseridos pelo usuário.</returns>
         public static string[] solicitaDadosConsultaCancelada()
         {
             string[] dadosConsultaCancelada = new string[2];
@@ -93,7 +102,8 @@ namespace AgendaConsultorio.Interface
         /// <summary>
         /// Imprime a lista de todos os pacientes ordenados.
         /// </summary>
-        /// <param name="pacientes">Consulta com os pacientes ordenadas.</param>
+        /// <param name="pacienteDAO">Contexto dos pacientes no banco.</param>
+        /// <param name="ordenacao">Parâmetro de orendação da lista.</param>
         public static void imprimeListaPaciente(PacienteDAO pacienteDAO, String ordenacao)
         {
             Console.WriteLine(string.Concat(Enumerable.Repeat("-", 60)) + "\n" +
@@ -170,7 +180,6 @@ namespace AgendaConsultorio.Interface
             
             foreach (var consulta in consultas)
             {
-                consulta.Paciente = pacienteDAO.recuperaPaciente(consulta.PacienteId);
 
                 if (consultas.First().Equals(consulta) ||
                     !(consultas.ElementAt(controleLista - 1).DtHrInicio.Date.Equals(consulta.DtHrInicio.Date)))

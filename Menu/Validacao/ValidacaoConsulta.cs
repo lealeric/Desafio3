@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using AgendaConsultorio.Database;
 using AgendaConsultorio.Model;
 
 namespace AgendaConsultorio.Validacao
@@ -19,16 +20,17 @@ namespace AgendaConsultorio.Validacao
         /// <summary>
         /// Cria uma instância de validação da consulta.
         /// </summary>
-        /// <param name="agenda">Objeto gerenciador dos contextos de agendamentos e pacientes.</param>
+        /// <param name="pacienteDAO">Contexto dos pacientes no banco de dados.</param>
+        /// <param name="consultaDAO">Contexto dos agendamentos no banco de dados.</param>
         /// <param name="cpf"></param>
         /// <param name="data"></param>
         /// <param name="hrInicial"></param>
         /// <param name="hrFinal"></param>
-        public ValidacaoConsulta(Agenda agenda, string cpf, string data, string hrInicial, string hrFinal)
+        public ValidacaoConsulta(PacienteDAO pacienteDAO, ConsultaDAO consultaDAO, string cpf, string data, string hrInicial, string hrFinal)
         {
             DicionarioErrosConsulta = new Dictionary<string, string>();
 
-            validaPaciente(agenda, Convert.ToInt64(cpf));
+            validaPaciente(pacienteDAO, Convert.ToInt64(cpf));
 
             DateTime dtHrInicial, dtHrFinal;
             bool dataHoraInicialValida = DateTime.TryParseExact(data + " " + hrInicial, "dd/MM/yyyy HHmm", new CultureInfo("pt-BR"), DateTimeStyles.None, out dtHrInicial);
@@ -48,16 +50,17 @@ namespace AgendaConsultorio.Validacao
                 Fechado = DateTime.ParseExact(data + " 1900", "dd/MM/yyyy HHmm", new CultureInfo("pt-BR"), DateTimeStyles.None);
                 validaDataHoraInicial(dtHrInicial);
                 validaDataHoraFinal(dtHrFinal);
-                validaIntervalos(dtHrInicial, dtHrFinal, agenda.ConsultaDAO.Consultas()); ;
+                validaIntervalos(dtHrInicial, dtHrFinal, consultaDAO.Consultas()); ;
             }
         }
 
         /// <summary>
         /// Realiza a validação dos dados referentes a um agendamento, digitados pelo usuário.
         /// </summary>
-        /// <param name="agenda">Objeto gerenciador dos contextos de agendamentos e pacientes.</param>
+        /// <param name="pacienteDAO">Contexto dos pacientes no banco de dados.</param>
+        /// <param name="consultaDAO">Contexto dos agendamentos no banco de dados.</param>
         /// <returns>Um array com os dados validados.</returns>
-        public static String[] validaDadosConsulta(Agenda agenda)
+        public static String[] validaDadosConsulta(PacienteDAO pacienteDAO, ConsultaDAO consultaDAO)
         {
             ValidacaoConsulta validacaoConsulta;
             Dictionary<string, string> dicErrosConsulta;
@@ -66,7 +69,8 @@ namespace AgendaConsultorio.Validacao
             do
             {
                 dadosConsulta = Interface.Interface.solicitaDadosConsulta(dadosConsulta);
-                validacaoConsulta = new ValidacaoConsulta(agenda, dadosConsulta[0], dadosConsulta[1], dadosConsulta[2], dadosConsulta[3]);
+                validacaoConsulta = new ValidacaoConsulta(pacienteDAO, consultaDAO, dadosConsulta[0], dadosConsulta[1],
+                    dadosConsulta[2], dadosConsulta[3]);
                 dicErrosConsulta = validacaoConsulta.DicionarioErrosConsulta;
 
                 foreach (KeyValuePair<string, string> item in dicErrosConsulta)
@@ -123,16 +127,16 @@ namespace AgendaConsultorio.Validacao
             }
         }
 
-        private void validaPaciente(Agenda agenda, long cpf)
+        private void validaPaciente(PacienteDAO pacienteDAO, long cpf)
         {
-            Paciente paciente = agenda.PacienteDAO.recuperaPaciente(cpf);
+            Paciente paciente = pacienteDAO.recuperaPaciente(cpf);
             if ( paciente == null)
             {
                 DicionarioErrosConsulta.Add("Paciente", "Paciente não cadastrado!\n");
 
                 return;
             }
-            else if (agenda.PacienteDAO.retornaProximaConsulta(paciente.Id) != null)
+            else if (pacienteDAO.retornaProximaConsulta(paciente.Id) != null)
             {
                 DicionarioErrosConsulta.Add("Paciente", "Paciente já possui consulta agendada!\n");
 
